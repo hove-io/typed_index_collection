@@ -2,12 +2,9 @@
 
 #![deny(missing_docs)]
 
-/// The error type used by the crate.
-pub type Error = failure::Error;
-
-/// The corresponding result type used by the crate.
-pub type Result<T> = std::result::Result<T, Error>;
-
 mod collection;
+mod error;
+mod macros;
 
 pub use crate::collection::*;
+pub use crate::error::*;

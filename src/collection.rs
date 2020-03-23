@@ -1,8 +1,7 @@
 //! Collections of objects with typed indices and buildin identifier support.
 
-use crate::Result;
+use crate::error::Error;
 use derivative::Derivative;
-use failure::{bail, ensure};
 use log::warn;
 use std::{
     borrow::Borrow,
@@ -14,6 +13,8 @@ use std::{
     result::Result as StdResult,
     slice,
 };
+
+type Result<T> = std::result::Result<T, Error>;
 
 /// An object that can be assigned an identifier.
 pub trait WithId {
@@ -28,46 +29,6 @@ pub trait Id<T> {
 
     /// Set the identifier
     fn set_id(&mut self, id: String);
-}
-
-/// Implements the Id trait for an object. For example, if an object Animal has
-/// a field 'species_id' which is a pointer toward another Object of type
-/// Species, you can implements Id with the following example. You can also
-/// implement Id for Animal itself (the identifier of an Animal is its own
-/// field that must be named `id`).
-/// ```
-/// # use collections::impl_id;
-/// # fn main() {
-/// struct Species {
-///   id: String,
-///   name: String,
-/// }
-/// struct Animal {
-///   id: String,
-///   name: String,
-/// # #[macro_use]
-///   species_id: String,
-/// }
-/// impl_id!(Animal, Species, species_id);
-/// impl_id!(Animal);
-/// # }
-/// ```
-#[macro_export]
-macro_rules! impl_id {
-    ($ty:ty, $gen:ty, $id: ident) => {
-        impl collections::Id<$gen> for $ty {
-            fn id(&self) -> &str {
-                &self.$id
-            }
-
-            fn set_id(&mut self, id: std::string::String) {
-                self.$id = id;
-            }
-        }
-    };
-    ($ty:ty) => {
-        impl_id!($ty, $ty, id);
-    };
 }
 
 /// Typed index.
@@ -460,13 +421,12 @@ impl<T: Id<T>> CollectionWithId<T> {
     pub fn new(v: Vec<T>) -> Result<Self> {
         let mut id_to_idx = HashMap::default();
         for (i, obj) in v.iter().enumerate() {
-            ensure!(
-                id_to_idx
-                    .insert(obj.id().to_string(), Idx::new(i))
-                    .is_none(),
-                "{} already found",
-                obj.id()
-            );
+            if id_to_idx
+                .insert(obj.id().to_string(), Idx::new(i))
+                .is_some()
+            {
+                return Err(Error::IdentifierAlreadyExists(obj.id().to_owned()));
+            }
         }
         Ok(CollectionWithId {
             collection: Collection::new(v),
@@ -598,7 +558,7 @@ impl<T: Id<T>> CollectionWithId<T> {
         let next_index = self.collection.objects.len();
         let idx = Idx::new(next_index);
         match self.id_to_idx.entry(item.id().to_string()) {
-            Occupied(_) => bail!("{} already found", item.id()),
+            Occupied(_) => Err(Error::IdentifierAlreadyExists(item.id().to_owned())),
             Vacant(v) => {
                 v.insert(idx);
                 self.collection.objects.push(item);
