@@ -13,7 +13,6 @@
 /// struct Animal {
 ///   id: String,
 ///   name: String,
-/// # #[macro_use]
 ///   species_id: String,
 /// }
 /// impl_id!(Animal, Species, species_id);
@@ -35,5 +34,37 @@ macro_rules! impl_id {
     };
     ($ty:ty) => {
         impl_id!($ty, $ty, id);
+    };
+}
+
+/// Implement trait `WithId` automatically for a type.
+///
+/// The type must implement `Default` and have at least 2 fields: `id` and
+/// `name`. Both `id` and `name` will be set with the value of the input
+/// parameter `id`.
+/// ```
+/// # use collections::impl_with_id;
+/// # fn main() {
+/// #[derive(Default)]
+/// struct Animal {
+///   id: String,
+///   name: String,
+///   species: String,
+/// }
+/// impl_with_id!(Animal);
+/// # }
+/// ```
+#[macro_export]
+macro_rules! impl_with_id {
+    ($ty:ty) => {
+        impl collections::WithId for $ty {
+            fn with_id(id: &str) -> Self {
+                Self {
+                    id: id.to_owned(),
+                    name: id.to_owned(),
+                    ..Default::default()
+                }
+            }
+        }
     };
 }
