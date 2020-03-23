@@ -4,4 +4,7 @@
 
 mod collection;
 mod error;
+mod macros;
+
 pub use crate::collection::*;
+pub use crate::error::*;
