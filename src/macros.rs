@@ -4,7 +4,7 @@
 /// implement Id for Animal itself (the identifier of an Animal is its own
 /// field that must be named `id`).
 /// ```
-/// # use collections::impl_id;
+/// # use typed_index_collection::impl_id;
 /// # fn main() {
 /// struct Species {
 ///   id: String,
@@ -22,7 +22,7 @@
 #[macro_export]
 macro_rules! impl_id {
     ($ty:ty, $gen:ty, $id: ident) => {
-        impl collections::Id<$gen> for $ty {
+        impl typed_index_collection::Id<$gen> for $ty {
             fn id(&self) -> &str {
                 &self.$id
             }
@@ -43,7 +43,7 @@ macro_rules! impl_id {
 /// `name`. Both `id` and `name` will be set with the value of the input
 /// parameter `id`.
 /// ```
-/// # use collections::impl_with_id;
+/// # use typed_index_collection::impl_with_id;
 /// # fn main() {
 /// #[derive(Default)]
 /// struct Animal {
@@ -57,7 +57,7 @@ macro_rules! impl_id {
 #[macro_export]
 macro_rules! impl_with_id {
     ($ty:ty) => {
-        impl collections::WithId for $ty {
+        impl typed_index_collection::WithId for $ty {
             fn with_id(id: &str) -> Self {
                 Self {
                     id: id.to_owned(),

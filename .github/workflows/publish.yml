@@ -20,8 +20,7 @@ jobs:
       with:
         command: login
         args: -- ${{ secrets.CARGO_TOKEN }}
-    - name: Publish with all features
+    - name: Publish
       uses: actions-rs/cargo@v1
       with:
         command: publish
-        args: --all-features
