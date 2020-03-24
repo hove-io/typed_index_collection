@@ -1,11 +1,13 @@
 [package]
-name = "collections"
+name = "typed_index_collection"
 description = "Manage collection of objects"
 version = "1.0.0"
 authors = ["Kisio Digital <team.coretools@kisio.org>"]
 edition = "2018"
 license = "MIT"
-repository = "https://github.com/CanalTP/collections"
+repository = "https://github.com/CanalTP/typed_index_collection"
+homepage = "https://github.com/CanalTP/typed_index_collection"
+documentation = "https://docs.rs/typed_index_collection"
 keywords = ["collection", "index"]
 
 [dependencies]

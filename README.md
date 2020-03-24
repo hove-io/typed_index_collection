@@ -1,14 +1,14 @@
-# collections &emsp;  ![Build][github_actions] [![Latest Version]][crates.io]
+# typed_index_collection &emsp;  ![Build][github_actions] [![Latest Version]][crates.io]
 
-[github_actions]: https://github.com/CanalTP/collections/workflows/Build/badge.svg
-[Latest Version]: https://img.shields.io/crates/v/collections.svg
-[crates.io]: https://crates.io/crates/collections
+[github_actions]: https://github.com/CanalTP/typed_index_collection/workflows/Build/badge.svg
+[Latest Version]: https://img.shields.io/crates/v/typed_index_collection.svg
+[crates.io]: https://crates.io/crates/typed_index_collection
 
-Manage collections of objects with typed indices and buildin identifier support.
+Manage Typed Index Collections of objects with typed indices and buildin identifier support.
 
 ---
 
-You may be looking for [API documentation](https://docs.rs/collections/latest/collections/).
+You may be looking for [API documentation](https://docs.rs/typed_index_collection/latest/typed_index_collection/).
 
 ## License
 
