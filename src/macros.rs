@@ -43,7 +43,7 @@ macro_rules! impl_id {
 /// `name`. Both `id` and `name` will be set with the value of the input
 /// parameter `id`.
 /// ```
-/// # use typed_index_collection::impl_with_id;
+/// # use typed_index_collection::{impl_with_id, WithId};
 /// # fn main() {
 /// #[derive(Default)]
 /// struct Animal {
@@ -52,6 +52,10 @@ macro_rules! impl_id {
 ///   species: String,
 /// }
 /// impl_with_id!(Animal);
+/// let animal = Animal::with_id("cat");
+/// assert_eq!("cat", animal.id);
+/// assert_eq!("cat", animal.name);
+/// assert_eq!("", animal.species);
 /// # }
 /// ```
 #[macro_export]
@@ -59,11 +63,10 @@ macro_rules! impl_with_id {
     ($ty:ty) => {
         impl typed_index_collection::WithId for $ty {
             fn with_id(id: &str) -> Self {
-                Self {
-                    id: id.to_owned(),
-                    name: id.to_owned(),
-                    ..Default::default()
-                }
+                let mut r = Self::default();
+                r.id = id.to_owned();
+                r.name = id.to_owned();
+                r
             }
         }
     };
