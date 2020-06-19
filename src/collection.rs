@@ -338,6 +338,30 @@ impl<T> ops::Index<Idx<T>> for Collection<T> {
     }
 }
 
+impl<T> ops::IndexMut<Idx<T>> for Collection<T> {
+    /// Access a mutable reference on an entry of the `Collection` from its
+    /// `Idx`.
+    ///
+    /// ```
+    /// # use std::ops::IndexMut;
+    /// use typed_index_collection::Collection;
+    ///
+    /// let mut c = Collection::new(vec![-2, -1, 0, 1, 2]);
+    /// let negatives_idxs = c
+    ///     .iter()
+    ///     .filter(|(_, &v)| v < 0)
+    ///     .map(|(idx, _)| idx)
+    ///     .collect::<Vec<_>>();
+    /// for idx in negatives_idxs {
+    ///     *c.index_mut(idx) = 0;
+    /// }
+    /// assert_eq!(vec![0, 0, 0, 1, 2], c.take());
+    /// ```
+    fn index_mut(&mut self, idx: Idx<T>) -> &mut T {
+        &mut self.objects[idx.get()]
+    }
+}
+
 impl<T> ::serde::Serialize for Collection<T>
 where
     T: ::serde::Serialize,
@@ -652,9 +676,7 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// ```
     pub fn merge(&mut self, other: Self) {
         for item in other {
-            match self.push(item) {
-                _ => continue,
-            }
+            let _ = self.push(item);
         }
     }
 
