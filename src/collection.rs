@@ -9,12 +9,10 @@ use std::{
     collections::{hash_map::Entry::*, HashMap},
     iter,
     marker::PhantomData,
-    ops,
-    result::Result as StdResult,
-    slice,
+    ops, slice,
 };
 
-type Result<T> = std::result::Result<T, Error>;
+type Result<T, E = Error> = std::result::Result<T, E>;
 
 /// An object that can be assigned an identifier.
 pub trait WithId {
@@ -366,7 +364,7 @@ impl<T> ::serde::Serialize for Collection<T>
 where
     T: ::serde::Serialize,
 {
-    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ::serde::Serializer,
     {
@@ -377,7 +375,7 @@ impl<'de, T> ::serde::Deserialize<'de> for Collection<T>
 where
     T: ::serde::Deserialize<'de>,
 {
-    fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
     {
@@ -1067,7 +1065,7 @@ impl<T> ::serde::Serialize for CollectionWithId<T>
 where
     T: ::serde::Serialize + Id<T>,
 {
-    fn serialize<S>(&self, serializer: S) -> StdResult<S::Ok, S::Error>
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: ::serde::Serializer,
     {
@@ -1078,7 +1076,7 @@ impl<'de, T> ::serde::Deserialize<'de> for CollectionWithId<T>
 where
     T: ::serde::Deserialize<'de> + Id<T>,
 {
-    fn deserialize<D>(deserializer: D) -> StdResult<Self, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
     {
