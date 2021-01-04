@@ -62,6 +62,8 @@ macro_rules! impl_id {
 macro_rules! impl_with_id {
     ($ty:ty) => {
         impl typed_index_collection::WithId for $ty {
+            // This warning occurs when the type only has id and name members and no other
+            #[allow(clippy::needless_update)]
             fn with_id(id: &str) -> Self {
                 Self {
                     id: id.to_owned(),
