@@ -446,12 +446,12 @@ impl<T: Id<T>> CollectionWithId<T> {
                 .insert(obj.id().to_string(), Idx::new(i))
                 .is_some()
             {
-                existing_idx = Some((i, obj.id().to_string()));
+                existing_idx = Some(i);
                 break;
             }
         }
-        if let Some((idx, id)) = existing_idx {
-            Err(Error::IdentifierAlreadyExists(id, v.swap_remove(idx)))
+        if let Some(idx) = existing_idx {
+            Err(Error::IdentifierAlreadyExists(v.swap_remove(idx)))
         } else {
             Ok(CollectionWithId {
                 collection: Collection::new(v),
@@ -584,7 +584,7 @@ impl<T: Id<T>> CollectionWithId<T> {
         let next_index = self.collection.objects.len();
         let idx = Idx::new(next_index);
         match self.id_to_idx.entry(item.id().to_string()) {
-            Occupied(_) => Err(Error::IdentifierAlreadyExists(item.id().to_owned(), item)),
+            Occupied(_) => Err(Error::IdentifierAlreadyExists(item)),
             Vacant(v) => {
                 v.insert(idx);
                 self.collection.objects.push(item);
