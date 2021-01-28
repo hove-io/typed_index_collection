@@ -12,8 +12,6 @@ use std::{
     ops, slice,
 };
 
-type Result<T, E = Error> = std::result::Result<T, E>;
-
 /// An object that can be assigned an identifier.
 pub trait WithId {
     /// Set an identifier and returns the object.
@@ -440,20 +438,26 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// assert_eq!(2, c.len());
     /// assert_eq!(Some(&Obj("foo")), c.get("foo"));
     /// assert!(CollectionWithId::new(vec![Obj("foo"), Obj("foo")]).is_err());
-    pub fn new(v: Vec<T>) -> Result<Self> {
+    pub fn new(mut v: Vec<T>) -> std::result::Result<Self, Error<T>> {
         let mut id_to_idx = HashMap::default();
+        let mut existing_idx = None;
         for (i, obj) in v.iter().enumerate() {
             if id_to_idx
                 .insert(obj.id().to_string(), Idx::new(i))
                 .is_some()
             {
-                return Err(Error::IdentifierAlreadyExists(obj.id().to_owned()));
+                existing_idx = Some((i, obj.id().to_string()));
+                break;
             }
         }
-        Ok(CollectionWithId {
-            collection: Collection::new(v),
-            id_to_idx,
-        })
+        if let Some((idx, id)) = existing_idx {
+            Err(Error::IdentifierAlreadyExists(id, v.swap_remove(idx)))
+        } else {
+            Ok(CollectionWithId {
+                collection: Collection::new(v),
+                id_to_idx,
+            })
+        }
     }
 
     /// Get a reference to the `String` to `Idx<T>` internal mapping.
@@ -576,11 +580,11 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// assert_eq!(&Obj("baz"), &c[baz_idx]);
     /// assert_eq!(&Obj("foobar"), &c[foobar_idx]);
     /// ```
-    pub fn push(&mut self, item: T) -> Result<Idx<T>> {
+    pub fn push(&mut self, item: T) -> std::result::Result<Idx<T>, Error<T>> {
         let next_index = self.collection.objects.len();
         let idx = Idx::new(next_index);
         match self.id_to_idx.entry(item.id().to_string()) {
-            Occupied(_) => Err(Error::IdentifierAlreadyExists(item.id().to_owned())),
+            Occupied(_) => Err(Error::IdentifierAlreadyExists(item.id().to_owned(), item)),
             Vacant(v) => {
                 v.insert(idx);
                 self.collection.objects.push(item);
@@ -644,7 +648,7 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// c1.try_merge(c3);
     /// assert_eq!(4, c1.len());
     /// ```
-    pub fn try_merge(&mut self, other: Self) -> Result<()> {
+    pub fn try_merge(&mut self, other: Self) -> std::result::Result<(), Error<T>> {
         for item in other {
             self.push(item)?;
         }
