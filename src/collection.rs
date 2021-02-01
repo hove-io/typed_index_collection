@@ -440,24 +440,18 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// assert!(CollectionWithId::new(vec![Obj("foo"), Obj("foo")]).is_err());
     pub fn new(mut v: Vec<T>) -> std::result::Result<Self, Error<T>> {
         let mut id_to_idx = HashMap::default();
-        let mut existing_idx = None;
         for (i, obj) in v.iter().enumerate() {
             if id_to_idx
                 .insert(obj.id().to_string(), Idx::new(i))
                 .is_some()
             {
-                existing_idx = Some(i);
-                break;
+                return Err(Error::IdentifierAlreadyExists(v.swap_remove(i)));
             }
         }
-        if let Some(idx) = existing_idx {
-            Err(Error::IdentifierAlreadyExists(v.swap_remove(idx)))
-        } else {
-            Ok(CollectionWithId {
-                collection: Collection::new(v),
-                id_to_idx,
-            })
-        }
+        Ok(CollectionWithId {
+            collection: Collection::new(v),
+            id_to_idx,
+        })
     }
 
     /// Get a reference to the `String` to `Idx<T>` internal mapping.
