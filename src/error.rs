@@ -15,6 +15,7 @@ impl<T: Id<T>> std::fmt::Debug for Error<T> {
             Self::IdentifierAlreadyExists(obj) => f
                 .debug_struct("IdentifierAlreadyExists Error")
                 .field("id", &obj.id())
+                .field("type", &std::any::type_name::<T>())
                 .finish(),
         }
     }
