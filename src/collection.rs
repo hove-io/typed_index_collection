@@ -259,7 +259,7 @@ impl<T> Collection<T> {
     /// assert_eq!(0, c.len());
     /// ```
     pub fn take(&mut self) -> Vec<T> {
-        ::std::mem::replace(&mut self.objects, Vec::new())
+        ::std::mem::take(&mut self.objects)
     }
 
     // Return true if the collection has no objects.
@@ -992,7 +992,7 @@ impl<T> CollectionWithId<T> {
     /// ```
     pub fn take(&mut self) -> Vec<T> {
         self.id_to_idx.clear();
-        ::std::mem::replace(&mut self.collection.objects, Vec::new())
+        ::std::mem::take(&mut self.collection.objects)
     }
 }
 
