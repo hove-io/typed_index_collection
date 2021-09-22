@@ -1,4 +1,9 @@
 //! Collections of objects with typed indices and buildin identifier support.
+//!
+//! # Features
+//!
+//! With the feature `expose-inner`, you might be able to access information
+//! on some of the internals of the implementation.
 
 use crate::error::Error;
 use derivative::Derivative;
@@ -42,7 +47,21 @@ impl<T> Idx<T> {
     fn new(idx: usize) -> Self {
         Idx(idx as u32, PhantomData)
     }
+    #[cfg(not(feature = "expose-inner"))]
     fn get(self) -> usize {
+        self.0 as usize
+    }
+    #[cfg(feature = "expose-inner")]
+    /// Get the inner `usize` index of the object pointed to by the [`Idx<T>`] instance.
+    ///
+    /// Under the hood, [`CollectionWithId`] stores all the object in a [`Vec`],
+    /// the index being returned is therefore the position of the object inside this [`Vec`].
+    ///
+    /// # Warning
+    ///
+    /// Note that the real inner value is a [`u32`], then cast to a [`usize]`.
+    /// This might cause a `panic` on some platforms if the size of [`usize`] is smaller than a [`u32`].
+    pub fn get(self) -> usize {
         self.0 as usize
     }
 }
