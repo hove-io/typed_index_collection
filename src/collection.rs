@@ -7,7 +7,6 @@
 
 use crate::error::Error;
 use derivative::Derivative;
-use log::warn;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
@@ -16,6 +15,7 @@ use std::{
     marker::PhantomData,
     ops, slice,
 };
+use tracing::warn;
 
 /// An object that can be assigned an identifier.
 pub trait WithId {
@@ -867,6 +867,7 @@ impl<T: Id<T>> iter::Extend<T> for CollectionWithId<T> {
     /// # Examples
     ///
     /// ```
+    /// # testing_logger::setup();
     /// use typed_index_collection::{CollectionWithId, Id};
     ///
     /// #[derive(PartialEq, Debug)]
@@ -881,6 +882,10 @@ impl<T: Id<T>> iter::Extend<T> for CollectionWithId<T> {
     /// let mut c2 = CollectionWithId::new(vec![Obj("foo"), Obj("qux")]).unwrap();
     /// c1.extend(c2);
     /// assert_eq!(3, c1.len());
+    /// testing_logger::validate(|captured_logs| {
+    ///   assert!(captured_logs[0].level == tracing::log::Level::Warn);
+    ///   assert!(captured_logs[0].body.contains("identifier foo already exists"));
+    /// });
     /// ```
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
         for item in iter {
