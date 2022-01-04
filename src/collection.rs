@@ -492,8 +492,37 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// let c = CollectionWithId::new(vec![Obj("foo"), Obj("bar")]).unwrap();
     /// assert_eq!(2, c.len());
     /// assert_eq!(2, c.get_id_to_idx().len());
+    /// ```
     pub fn get_id_to_idx(&self) -> &HashMap<String, Idx<T>> {
         &self.id_to_idx
+    }
+
+    /// Iterate over the list of indexes of the [`CollectionWithId`].
+    ///
+    /// ```
+    /// use typed_index_collection::{CollectionWithId, Id};
+    /// use std::collections::HashMap;
+    ///
+    /// #[derive(PartialEq, Debug)]
+    /// struct Obj(&'static str);
+    ///
+    /// impl Id<Obj> for Obj {
+    ///     fn id(&self) -> &str { self.0 }
+    ///     fn set_id(&mut self, id: String) { unimplemented!(); }
+    /// }
+    ///
+    /// let c = CollectionWithId::new(vec![Obj("foo"), Obj("bar")]).unwrap();
+    /// let mut indexes = c.indexes();
+    /// let next_index = indexes.next().unwrap();
+    /// assert_eq!("foo", c[next_index].id());
+    /// let next_index = indexes.next().unwrap();
+    /// assert_eq!("bar", c[next_index].id());
+    /// assert_eq!(None, indexes.next());
+    /// ```
+    pub fn indexes(&self) -> impl Iterator<Item = Idx<T>> {
+        // NOTE: do not use `self.id_to_idx.values().copied()
+        // because `HashMap::values()` returns in randomized order
+        (0..self.collection.objects.len()).map(Idx::new)
     }
 
     /// Access to a mutable reference of the corresponding object.
