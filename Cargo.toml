@@ -2,7 +2,7 @@
 name = "typed_index_collection"
 description = "Manage collection of objects"
 version = "2.2.0"
-authors = ["Kisio Digital <team.coretools@kisio.org>"]
+authors = ["Hove <team.coretools@kisio.org>"]
 edition = "2018"
 license = "MIT"
 repository = "https://github.com/hove-io/typed_index_collection"
