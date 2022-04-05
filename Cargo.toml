@@ -5,8 +5,8 @@ version = "2.2.0"
 authors = ["Kisio Digital <team.coretools@kisio.org>"]
 edition = "2018"
 license = "MIT"
-repository = "https://github.com/CanalTP/typed_index_collection"
-homepage = "https://github.com/CanalTP/typed_index_collection"
+repository = "https://github.com/hove-io/typed_index_collection"
+homepage = "https://github.com/hove-io/typed_index_collection"
 documentation = "https://docs.rs/typed_index_collection"
 keywords = ["collection", "index"]
 
