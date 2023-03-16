@@ -23,6 +23,7 @@
 macro_rules! impl_id {
     ($ty:ty, $gen:ty, $id: ident) => {
         impl typed_index_collection::Id<$gen> for $ty {
+            #[allow(clippy::misnamed_getters)]
             fn id(&self) -> &str {
                 &self.$id
             }
