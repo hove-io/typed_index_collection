@@ -11,7 +11,7 @@ use std::{
     borrow::Borrow,
     cmp::Ordering,
     collections::{hash_map::Entry::*, HashMap},
-    iter,
+    iter::{self, FromIterator},
     marker::PhantomData,
     ops, slice,
 };
@@ -343,6 +343,22 @@ impl<T> IntoIterator for Collection<T> {
 
     fn into_iter(self) -> Self::IntoIter {
         self.objects.into_iter()
+    }
+}
+
+impl<T> FromIterator<T> for Collection<T> {
+    /// Collect all items into a `Collection`.
+    ///
+    /// ```
+    /// use typed_index_collection::Collection;
+    ///
+    /// let c: Collection<isize> = vec![-2, -1, 0, 1, 2].into_iter().collect();
+    /// assert_eq!(*c.values().nth(1).unwrap(), -1);
+    /// ```
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        Self {
+            objects: iter.into_iter().collect(),
+        }
     }
 }
 
