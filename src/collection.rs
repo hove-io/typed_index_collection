@@ -1071,18 +1071,18 @@ pub struct RefMut<'a, T: Id<T>> {
     collection: &'a mut CollectionWithId<T>,
     old_id: String,
 }
-impl<'a, T: Id<T>> ops::DerefMut for RefMut<'a, T> {
+impl<T: Id<T>> ops::DerefMut for RefMut<'_, T> {
     fn deref_mut(&mut self) -> &mut T {
         &mut self.collection.collection.objects[self.idx.get()]
     }
 }
-impl<'a, T: Id<T>> ops::Deref for RefMut<'a, T> {
+impl<T: Id<T>> ops::Deref for RefMut<'_, T> {
     type Target = T;
     fn deref(&self) -> &T {
         &self.collection.objects[self.idx.get()]
     }
 }
-impl<'a, T: Id<T>> Drop for RefMut<'a, T> {
+impl<T: Id<T>> Drop for RefMut<'_, T> {
     fn drop(&mut self) {
         if self.id() != self.old_id {
             self.collection.id_to_idx.remove(&self.old_id);
