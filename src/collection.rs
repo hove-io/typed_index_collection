@@ -6,7 +6,6 @@
 //! on some of the internals of the implementation.
 
 use crate::error::Error;
-use derivative::Derivative;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
@@ -33,14 +32,8 @@ pub trait Id<T> {
 }
 
 /// Typed index.
-#[derive(Derivative, Debug)]
-#[derivative(
-    Copy(bound = ""),
-    Clone(bound = ""),
-    PartialEq(bound = ""),
-    Eq(bound = ""),
-    Hash(bound = "")
-)]
+#[derive(educe::Educe, Debug)]
+#[educe(Copy, Clone(bound()), PartialEq(bound()), Eq, Hash(bound()))]
 pub struct Idx<T>(u32, PhantomData<T>);
 
 impl<T> Idx<T> {
@@ -79,8 +72,8 @@ impl<T> PartialOrd for Idx<T> {
 /// The `Collection` object looks like a `Map<Idx<T>, T>`, with opaque
 /// keys.  Then, you can easily store indices and don't mess up
 /// between different types of indices.
-#[derive(Debug, Derivative, Clone)]
-#[derivative(Default(bound = ""))]
+#[derive(Debug, educe::Educe, Clone)]
+#[educe(Default(bound()))]
 pub struct Collection<T> {
     objects: Vec<T>,
 }
@@ -417,8 +410,8 @@ where
 }
 
 /// A `Collection` with identifier support.
-#[derive(Debug, Derivative, Clone)]
-#[derivative(Default(bound = ""))]
+#[derive(Debug, educe::Educe, Clone)]
+#[educe(Default(bound()))]
 pub struct CollectionWithId<T> {
     collection: Collection<T>,
     id_to_idx: HashMap<String, Idx<T>>,
