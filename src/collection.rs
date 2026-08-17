@@ -9,7 +9,7 @@ use crate::error::Error;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
-    collections::{hash_map::Entry::*, HashMap},
+    collections::{HashMap, hash_map::Entry::*},
     iter::{self, FromIterator},
     marker::PhantomData,
     ops, slice,
@@ -397,7 +397,7 @@ impl<T> ops::IndexMut<Idx<T>> for Collection<T> {
     /// let mut c = Collection::new(vec![-2, -1, 0, 1, 2]);
     /// let negatives_idxs = c
     ///     .iter()
-    ///     .filter(|(_, &v)| v < 0)
+    ///     .filter(|&(_, v)| *v < 0)
     ///     .map(|(idx, _)| idx)
     ///     .collect::<Vec<_>>();
     /// for idx in negatives_idxs {
@@ -560,7 +560,7 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// assert_eq!("bar", c[next_index].id());
     /// assert_eq!(None, indexes.next());
     /// ```
-    pub fn indexes(&self) -> impl Iterator<Item = Idx<T>> {
+    pub fn indexes(&self) -> impl Iterator<Item = Idx<T>> + use<T> {
         // NOTE: do not use `self.id_to_idx.values().copied()
         // because `HashMap::values()` returns in randomized order
         (0..self.collection.objects.len()).map(Idx::new)
