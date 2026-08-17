@@ -6,11 +6,10 @@
 //! on some of the internals of the implementation.
 
 use crate::error::Error;
-use derivative::Derivative;
 use std::{
     borrow::Borrow,
     cmp::Ordering,
-    collections::{hash_map::Entry::*, HashMap},
+    collections::{HashMap, hash_map::Entry::*},
     iter::{self, FromIterator},
     marker::PhantomData,
     ops, slice,
@@ -33,15 +32,26 @@ pub trait Id<T> {
 }
 
 /// Typed index.
-#[derive(Derivative, Debug)]
-#[derivative(
-    Copy(bound = ""),
-    Clone(bound = ""),
-    PartialEq(bound = ""),
-    Eq(bound = ""),
-    Hash(bound = "")
-)]
+#[derive(Debug)]
 pub struct Idx<T>(u32, PhantomData<T>);
+
+impl<T> Copy for Idx<T> {}
+impl<T> Clone for Idx<T> {
+    fn clone(&self) -> Self {
+        *self
+    }
+}
+impl<T> PartialEq for Idx<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl<T> Eq for Idx<T> {}
+impl<T> std::hash::Hash for Idx<T> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.0.hash(state);
+    }
+}
 
 impl<T> Idx<T> {
     fn new(idx: usize) -> Self {
@@ -79,10 +89,17 @@ impl<T> PartialOrd for Idx<T> {
 /// The `Collection` object looks like a `Map<Idx<T>, T>`, with opaque
 /// keys.  Then, you can easily store indices and don't mess up
 /// between different types of indices.
-#[derive(Debug, Derivative, Clone)]
-#[derivative(Default(bound = ""))]
+#[derive(Debug, Clone)]
 pub struct Collection<T> {
     objects: Vec<T>,
+}
+
+impl<T> Default for Collection<T> {
+    fn default() -> Self {
+        Collection {
+            objects: Vec::new(),
+        }
+    }
 }
 
 /// Creates a `Collection` from one element.
@@ -380,7 +397,7 @@ impl<T> ops::IndexMut<Idx<T>> for Collection<T> {
     /// let mut c = Collection::new(vec![-2, -1, 0, 1, 2]);
     /// let negatives_idxs = c
     ///     .iter()
-    ///     .filter(|(_, &v)| v < 0)
+    ///     .filter(|&(_, v)| *v < 0)
     ///     .map(|(idx, _)| idx)
     ///     .collect::<Vec<_>>();
     /// for idx in negatives_idxs {
@@ -417,11 +434,19 @@ where
 }
 
 /// A `Collection` with identifier support.
-#[derive(Debug, Derivative, Clone)]
-#[derivative(Default(bound = ""))]
+#[derive(Debug, Clone)]
 pub struct CollectionWithId<T> {
     collection: Collection<T>,
     id_to_idx: HashMap<String, Idx<T>>,
+}
+
+impl<T> Default for CollectionWithId<T> {
+    fn default() -> Self {
+        CollectionWithId {
+            collection: Collection::default(),
+            id_to_idx: HashMap::default(),
+        }
+    }
 }
 
 /// Creates a `CollectionWithId` from one element.
@@ -535,7 +560,7 @@ impl<T: Id<T>> CollectionWithId<T> {
     /// assert_eq!("bar", c[next_index].id());
     /// assert_eq!(None, indexes.next());
     /// ```
-    pub fn indexes(&self) -> impl Iterator<Item = Idx<T>> {
+    pub fn indexes(&self) -> impl Iterator<Item = Idx<T>> + use<T> {
         // NOTE: do not use `self.id_to_idx.values().copied()
         // because `HashMap::values()` returns in randomized order
         (0..self.collection.objects.len()).map(Idx::new)
